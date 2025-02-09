@@ -2,6 +2,7 @@ package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
 import ru.javawebinar.topjava.model.Meal;
+import ru.javawebinar.topjava.repository.JavaMealRepository;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -9,32 +10,58 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.Month;
-import java.util.Arrays;
-import java.util.List;
+import java.time.format.DateTimeFormatter;
 
 import static org.slf4j.LoggerFactory.getLogger;
-import static ru.javawebinar.topjava.util.MealsUtil.filteredByStreams;
 
 public class MealServlet extends HttpServlet {
+    private final JavaMealRepository mealRepo = new JavaMealRepository();
     private static final Logger log = getLogger(MealServlet.class);
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        log.debug("redirect to meals");
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String action = req.getParameter("action");
+        if ("list".equals(action)) {
+            log.debug("redirect to meals");
+            req.setAttribute("meals", mealRepo.findAll());
+            req.getRequestDispatcher("./meals.jsp").forward(req, resp);
+        } else if ("edit".equals(action)) {
+            log.debug("update");
+            int id = Integer.parseInt(req.getParameter("id"));
+            Meal meal= mealRepo.findById(id).orElse(null);
+            req.setAttribute("meal", meal);
+            req.getRequestDispatcher("./mealForm.jsp").forward(req, resp);
+        } else if ("delete".equals(action)) {
+            log.debug("delete meal");
+            int id = Integer.parseInt(req.getParameter("id"));
+            mealRepo.deleteById(id);
+            resp.sendRedirect("meals?action=list");
+        } else if ("new".equals(action)) {
+            req.getRequestDispatcher("./mealForm.jsp").forward(req, resp);
+        } else {
+            req.setAttribute("meals", mealRepo.findAll());
+            req.getRequestDispatcher("./meals.jsp").forward(req, resp);
+        }
+    }
 
-        List<Meal> meals = Arrays.asList(
-                new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0), "Завтрак", 500),
-                new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 13, 0), "Обед", 1000),
-                new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 20, 0), "Ужин", 500),
-                new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 0, 0), "Еда на граничное значение", 100),
-                new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 10, 0), "Завтрак", 1000),
-                new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 13, 0), "Обед", 500),
-                new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0), "Ужин", 410)
-        );
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        request.setAttribute("meals", filteredByStreams(meals, LocalTime.of(0, 0), LocalTime.of(23, 0), 2000));
-        request.getRequestDispatcher( "./meals.jsp").forward(request, response);
+        String id = req.getParameter("id");
+        LocalDateTime date = LocalDateTime.parse(req.getParameter("date"));
+        String description = req.getParameter("description");
+        int calories = Integer.parseInt(req.getParameter("calories"));
+
+        if (id == null || id.isEmpty()) {
+            log.debug("add new meal");
+            mealRepo.save(new Meal(date, description, calories));
+        } else {
+            log.debug("update meal");
+            int mealId = Integer.parseInt(id);
+            Meal updatedMeal = new Meal(date, description, calories);
+            updatedMeal.setId(mealId);
+            mealRepo.update(updatedMeal);
+        }
+
+        resp.sendRedirect("meals?action=list");
     }
 }

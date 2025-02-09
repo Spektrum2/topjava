@@ -4,6 +4,7 @@
 
 <html lang="ru">
 <head>
+    <meta charset="UTF-8">
     <title>Meals</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -11,7 +12,7 @@
 <h3><a href="index.html">Home</a></h3>
 <hr>
 <h2>Meals</h2>
-<hr>
+<a href="meals?action=new">Add Meal</a>
 <table class="table">
     <thead>
         <tr>
@@ -28,6 +29,8 @@
             <td><javatime:format value="${meal.dateTime}" pattern="yyyy-MM-dd HH:mm" /></td>
             <td>${meal.description}</td>
             <td>${meal.calories}</td>
+            <td><a href="meals?action=edit&id=${meal.id}">Update</a></td>
+            <td><a href="meals?action=delete&id=${meal.id}">Delete</a></td>
         </tr>
     </c:forEach>
     </tbody>
