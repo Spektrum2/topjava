@@ -24,13 +24,8 @@
     </thead>
     <tbody>
     <c:forEach items="${meals}" var="meal">
-        <c:if test="${meal.excess}">
-        <tr style="color: red;">
-        </c:if>
-        <c:if test="${!meal.excess}">
-        <tr>
-        </c:if>
-            <td><javatime:format value="${meal.dateTime}" style="MS" /></td>
+        <tr style="color: ${meal.excess ? 'red' : 'green'};">
+            <td><javatime:format value="${meal.dateTime}" pattern="yyyy-MM-dd HH:mm" /></td>
             <td>${meal.description}</td>
             <td>${meal.calories}</td>
         </tr>
