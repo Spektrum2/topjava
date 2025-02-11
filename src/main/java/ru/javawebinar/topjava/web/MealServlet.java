@@ -2,7 +2,7 @@ package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.repository.JavaMealRepository;
+import ru.javawebinar.topjava.repository.InMemoryMealRepository;
 import ru.javawebinar.topjava.repository.MealRepository;
 
 import javax.servlet.ServletConfig;
@@ -25,7 +25,7 @@ public class MealServlet extends HttpServlet {
 
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        repository = new JavaMealRepository();
+        repository = new InMemoryMealRepository();
     }
 
     @Override
@@ -67,7 +67,7 @@ public class MealServlet extends HttpServlet {
 
         if (id == null || id.isEmpty()) {
             log.debug("add new meal");
-            repository.create(new Meal(0, date, description, calories));
+            repository.create(new Meal(null, date, description, calories));
         } else {
             log.debug("update meal");
             repository.update(new Meal(Integer.parseInt(id), date, description, calories));
