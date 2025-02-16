@@ -2,6 +2,19 @@
 <head>
     <meta charset="UTF-8">
     <title>Java Enterprise (Topjava)</title>
+    <script>
+        function setAuthUserId() {
+            let userId = document.getElementById("userSelect").value;
+            fetch("users", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: "userId=" + userId
+            });
+        }
+        window.onload = setAuthUserId;
+    </script>
 </head>
 <body>
 <h3>Проект <a href="https://github.com/JavaWebinar/topjava" target="_blank">Java Enterprise (Topjava)</a></h3>
@@ -10,5 +23,13 @@
     <li><a href="users">Users</a></li>
     <li><a href="meals">Meals</a></li>
 </ul>
+<h3>Select User</h3>
+<form id="userForm">
+    <label for="userSelect">Choose a user:</label>
+    <select id="userSelect" name="userId" onchange="setAuthUserId()">
+        <option value="1" selected>User</option>
+        <option value="2">Admin</option>
+    </select>
+</form>
 </body>
 </html>
