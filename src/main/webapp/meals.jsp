@@ -17,10 +17,25 @@
     </style>
 </head>
 <body>
-<section>
+<section class="container">
     <h3><a href="index.html">Home</a></h3>
     <hr/>
     <h2>Meals</h2>
+    <form method="get" action="meals">
+        <label for="startDate">От даты (включая)</label>
+        <input type="date" id="startDate" name="startDate">
+
+        <label for="endDate">До даты (включая)</label>
+        <input type="date" id="endDate" name="endDate">
+
+        <label for="startTime">От времени (включая)</label>
+        <input type="time" id="startTime" name="startTime">
+
+        <label for="endTime">До времени (включая)</label>
+        <input type="time" id="endTime" name="endTime">
+
+        <button type="submit">Отфильтровать</button>
+    </form>
     <a href="meals?action=create">Add Meal</a>
     <br><br>
     <table border="1" cellpadding="8" cellspacing="0">

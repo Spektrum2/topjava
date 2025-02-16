@@ -18,13 +18,19 @@ public class MealsUtil {
     public static final int DEFAULT_CALORIES_PER_DAY = 2000;
 
     public static final List<Meal> meals = Arrays.asList(
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0), "Завтрак", 500),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 13, 0), "Обед", 1000),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 20, 0), "Ужин", 500),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 0, 0), "Еда на граничное значение", 100),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 10, 0), "Завтрак", 1000),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 13, 0), "Обед", 500),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0), "Ужин", 410)
+            new Meal(1, LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0), "Завтрак", 500),
+            new Meal(1, LocalDateTime.of(2020, Month.JANUARY, 30, 13, 0), "Обед", 1000),
+            new Meal(1, LocalDateTime.of(2020, Month.JANUARY, 30, 20, 0), "Ужин", 500),
+            new Meal(1, LocalDateTime.of(2020, Month.JANUARY, 31, 0, 0), "Еда на граничное значение", 100),
+            new Meal(1, LocalDateTime.of(2020, Month.JANUARY, 31, 10, 0), "Завтрак", 1000),
+            new Meal(1, LocalDateTime.of(2020, Month.JANUARY, 31, 13, 0), "Обед", 500),
+            new Meal(1, LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0), "Ужин", 410),
+            new Meal(2, LocalDateTime.of(2020, Month.JANUARY, 29, 10, 0), "Завтрак - Омлет", 500),
+            new Meal(2, LocalDateTime.of(2020, Month.JANUARY, 29, 13, 0), "Обед - Борщ", 500),
+            new Meal(2, LocalDateTime.of(2020, Month.JANUARY, 29, 20, 0), "Ужин - Пицца", 1000),
+            new Meal(2, LocalDateTime.of(2020, Month.JANUARY, 28, 10, 0), "Завтрак - Яичница", 600),
+            new Meal(2, LocalDateTime.of(2020, Month.JANUARY, 28, 13, 0), "Обед - Окрошка", 500),
+            new Meal(2, LocalDateTime.of(2020, Month.JANUARY, 28, 20, 0), "Ужин - Паста", 1000)
     );
 
     public static List<MealTo> getTos(Collection<Meal> meals, int caloriesPerDay) {
