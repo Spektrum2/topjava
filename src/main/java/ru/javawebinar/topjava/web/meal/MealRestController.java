@@ -13,11 +13,12 @@ import java.util.List;
 
 import static ru.javawebinar.topjava.util.ValidationUtil.assureIdConsistent;
 import static ru.javawebinar.topjava.util.ValidationUtil.checkIsNew;
+import static ru.javawebinar.topjava.web.SecurityUtil.authUserCaloriesPerDay;
 import static ru.javawebinar.topjava.web.SecurityUtil.authUserId;
 
 @Controller
 public class MealRestController {
-    protected final Logger log = LoggerFactory.getLogger(getClass());
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private final MealService service;
 
     public MealRestController(MealService service) {
@@ -26,7 +27,7 @@ public class MealRestController {
 
     public List<MealTo> getAll() {
         log.info("getAll");
-        return service.getAll(authUserId());
+        return service.getAll(authUserId(), authUserCaloriesPerDay());
     }
 
     public Meal get(int id) {
@@ -51,10 +52,12 @@ public class MealRestController {
         service.update(meal, authUserId());
     }
 
-    public List<MealTo> getFilteredMeals(LocalDate startDate,
-                                         LocalDate endDate,
-                                         LocalTime startTime,
-                                         LocalTime endTime) {
-        return service.getFilteredMeals(startDate, endDate, startTime, endTime, authUserId());
+    public List<MealTo> getFiltered(LocalDate startDate,
+                                    LocalDate endDate,
+                                    LocalTime startTime,
+                                    LocalTime endTime
+    ) {
+        log.info("filtered");
+        return service.getFiltered(startDate, endDate, startTime, endTime, authUserCaloriesPerDay(), authUserId());
     }
 }

@@ -10,9 +10,9 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
-import static ru.javawebinar.topjava.util.MealsUtil.DEFAULT_CALORIES_PER_DAY;
 import static ru.javawebinar.topjava.util.MealsUtil.getFilteredTos;
 import static ru.javawebinar.topjava.util.ValidationUtil.checkNotFound;
+
 
 @Service
 public class MealService {
@@ -35,20 +35,21 @@ public class MealService {
         return checkNotFound(repository.get(id, userId), id);
     }
 
-    public List<MealTo> getAll(int userId) {
-        return MealsUtil.getTos(repository.getAll(userId), DEFAULT_CALORIES_PER_DAY);
+    public List<MealTo> getAll(int userId, int authUserCaloriesPerDay) {
+        return MealsUtil.getTos(repository.getAll(userId), authUserCaloriesPerDay);
     }
 
     public Meal update(Meal meal, int userId) {
         return checkNotFound(repository.save(meal, userId), meal.getId());
     }
 
-    public List<MealTo> getFilteredMeals(LocalDate startDate,
-                                         LocalDate endDate,
-                                         LocalTime startTime,
-                                         LocalTime endTime,
-                                         int userId) {
-        return getFilteredTos(repository.getFilteredByDate(userId, startDate, endDate), DEFAULT_CALORIES_PER_DAY, startTime, endTime);
+    public List<MealTo> getFiltered(LocalDate startDate,
+                                    LocalDate endDate,
+                                    LocalTime startTime,
+                                    LocalTime endTime,
+                                    int authUserCaloriesPerDay,
+                                    int userId) {
+        return getFilteredTos(repository.getFilteredByDate(userId, startDate, endDate), authUserCaloriesPerDay, startTime, endTime);
     }
 
 

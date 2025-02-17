@@ -6,78 +6,66 @@ import ru.javawebinar.topjava.repository.MealRepository;
 import ru.javawebinar.topjava.util.MealsUtil;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static ru.javawebinar.topjava.util.DateTimeUtil.isBetweenHalfOpen;
+import static ru.javawebinar.topjava.util.DateTimeUtil.isWithinInclusive;
 
 @Repository
 public class InMemoryMealRepository implements MealRepository {
-    private final Map<Integer, Meal> mealsMap = new ConcurrentHashMap<>();
+    private final Map<Integer, Map<Integer, Meal>> userMealsMap = new ConcurrentHashMap<>();
     private final AtomicInteger counter = new AtomicInteger(0);
 
     {
-        MealsUtil.meals.forEach(m -> save(m, m.getUserId()));
+        MealsUtil.mealsUserId1.forEach(m -> save(m, 1));
+        MealsUtil.mealsUserId2.forEach(m -> save(m, 2));
     }
 
     @Override
     public Meal save(Meal meal, int userId) {
-        meal.setUserId(userId);
+        Map<Integer, Meal> mealsMap = userMealsMap.computeIfAbsent(userId, k -> new ConcurrentHashMap<>());
+
         if (meal.isNew()) {
             meal.setId(counter.incrementAndGet());
             mealsMap.put(meal.getId(), meal);
             return meal;
         }
 
-        AtomicBoolean result = new AtomicBoolean(false);
-        mealsMap.computeIfPresent(meal.getId(), (id, oldMeal) -> {
-            if (oldMeal.getUserId().equals(userId)) {
-                result.set(true);
-                return meal;
-            } else {
-                return oldMeal;
-            }
-        });
-        return result.get() ? meal : null;
+        return mealsMap.computeIfPresent(meal.getId(), (id, oldUser) -> meal);
     }
 
     @Override
     public boolean delete(int id, int userId) {
-        AtomicBoolean result = new AtomicBoolean(false);
-        return mealsMap.computeIfPresent(id, (mealId, meal) -> {
-            if (meal.getUserId() == userId) {
-                result.set(true);
-                return null;
-            } else {
-                return meal;
-            }
-        }) == null && result.get();
+        Map<Integer, Meal> mealsMap = userMealsMap.get(userId);
+        return mealsMap != null && mealsMap.remove(id) != null;
     }
 
     @Override
     public Meal get(int id, int userId) {
-        Meal meal = mealsMap.get(id);
-        return (meal != null && meal.getUserId() == userId) ? meal : null;
+        Map<Integer, Meal> mealsMap = userMealsMap.get(userId);
+        return mealsMap == null ? null : mealsMap.get(id);
     }
 
     @Override
     public List<Meal> getAll(int userId) {
-        return mealsMap.values().stream()
-                .filter(m -> m.getUserId() == userId)
-                .sorted(Comparator.comparing(Meal::getDateTime).reversed())
-                .collect(Collectors.toList());
+        return filter(meal -> true, userId);
     }
 
     @Override
     public List<Meal> getFilteredByDate(int userId, LocalDate startDate, LocalDate endDate) {
-        return mealsMap.values().stream()
-                .filter(meal -> meal.getUserId().equals(userId)
-                        && isBetweenHalfOpen(meal.getDate(), startDate, endDate))
+        return filter(meal -> isWithinInclusive(meal.getDate(), startDate, endDate), userId);
+    }
+
+    public List<Meal> filter(Predicate<Meal> filter, int userId) {
+        Map<Integer, Meal> mealsMap = userMealsMap.get(userId);
+        return mealsMap == null ? Collections.emptyList() : mealsMap.values().stream()
+                .filter(filter)
                 .sorted(Comparator.comparing(Meal::getDateTime).reversed())
                 .collect(Collectors.toList());
     }
