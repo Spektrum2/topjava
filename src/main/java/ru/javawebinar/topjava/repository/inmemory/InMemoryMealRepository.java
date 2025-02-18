@@ -37,7 +37,7 @@ public class InMemoryMealRepository implements MealRepository {
             return meal;
         }
 
-        return mealsMap.computeIfPresent(meal.getId(), (id, oldUser) -> meal);
+        return mealsMap.computeIfPresent(meal.getId(), (id, oldMeal) -> meal);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class InMemoryMealRepository implements MealRepository {
         return filter(meal -> isWithinInclusive(meal.getDate(), startDate, endDate), userId);
     }
 
-    public List<Meal> filter(Predicate<Meal> filter, int userId) {
+    private List<Meal> filter(Predicate<Meal> filter, int userId) {
         Map<Integer, Meal> mealsMap = userMealsMap.get(userId);
         return mealsMap == null ? Collections.emptyList() : mealsMap.values().stream()
                 .filter(filter)

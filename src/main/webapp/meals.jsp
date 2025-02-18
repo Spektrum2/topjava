@@ -2,6 +2,10 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://topjava.javawebinar.ru/functions" %>
+<c:set var="startDate" value="${param['startDate'] != null ? param['startDate'] : ''}" />
+<c:set var="endDate" value="${param['endDate'] != null ? param['endDate'] : ''}" />
+<c:set var="startTime" value="${param['startTime'] != null ? param['startTime'] : ''}" />
+<c:set var="endTime" value="${param['endTime'] != null ? param['endTime'] : ''}" />
 <%--<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>--%>
 <html>
 <head>
