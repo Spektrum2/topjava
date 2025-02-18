@@ -90,9 +90,7 @@ public class MealServlet extends HttpServlet {
                 List<MealTo> meals = (startDate != null || endDate != null || startTime != null || endTime != null)
                         ? mealRestController.getFiltered(startDate, endDate, startTime, endTime)
                         : mealRestController.getAll();
-
                 request.setAttribute("meals", meals);
-
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
                 break;
         }
