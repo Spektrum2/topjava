@@ -121,25 +121,25 @@ public class MealServiceTest {
     @Test
     public void getBetweenInclusiveForUser() {
         List<Meal> actual = service.getBetweenInclusive(START_DATE, END_DATE, USER_ID);
-        assertMatch(actual, userMeal6, userMeal5, userMeal4, userMeal3, userMeal2, userMeal1, userMeal);
+        assertMatch(actual, userMeal7, userMeal6, userMeal5, userMeal4, userMeal3);
     }
 
     @Test
     public void getBetweenInclusiveForAdmin() {
         List<Meal> actual = service.getBetweenInclusive(ADMIN_START_DATE, ADMIN_END_DATE, ADMIN_ID);
-        assertMatch(actual, adminMeal2, adminMeal1, adminMeal, adminMeal5, adminMeal4, adminMeal3);
+        assertMatch(actual, adminMeal6, adminMeal5, adminMeal4, adminMeal3);
     }
 
     @Test
     public void getBetweenInclusiveWithEndDateOnlyForUser() {
-        List<Meal> actual = service.getBetweenInclusive(null, START_DATE, USER_ID);
+        List<Meal> actual = service.getBetweenInclusive(null, TO_DATE, USER_ID);
         assertMatch(actual, userMeal2, userMeal1, userMeal);
     }
 
     @Test
     public void getBetweenInclusiveWithStartDateOnlyForAdmin() {
         List<Meal> actual = service.getBetweenInclusive(ADMIN_END_DATE, null, ADMIN_ID);
-        assertMatch(actual, adminMeal2, adminMeal1, adminMeal);
+        assertMatch(actual, adminMeal6);
     }
 
     @Test
@@ -171,13 +171,13 @@ public class MealServiceTest {
     @Test
     public void getAllUserMeals() {
         List<Meal> allUser = service.getAll(USER_ID);
-        assertMatch(allUser, userMeal6, userMeal5, userMeal4, userMeal3, userMeal2, userMeal1, userMeal);
+        assertMatch(allUser, userMeal7, userMeal6, userMeal5, userMeal4, userMeal3, userMeal2, userMeal1, userMeal);
     }
 
     @Test
     public void getAllAdminMeals() {
         List<Meal> allAdmin = service.getAll(ADMIN_ID);
-        assertMatch(allAdmin, adminMeal2, adminMeal1, adminMeal, adminMeal5, adminMeal4, adminMeal3);
+        assertMatch(allAdmin, adminMeal6, adminMeal5, adminMeal4, adminMeal3, adminMeal2, adminMeal1, adminMeal);
     }
 
 }
