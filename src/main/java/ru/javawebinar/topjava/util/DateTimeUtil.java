@@ -24,7 +24,7 @@ public class DateTimeUtil {
     }
 
     public static LocalDateTime atStartOfNextDayOrMax(LocalDate localDate) {
-        return localDate != null ? localDate.plusDays(1).atStartOfDay() : MAX_DATE;
+        return localDate != null ? localDate.plusDays(1).atStartOfDay().minusSeconds(1) : MAX_DATE;
     }
 
     public static String toString(LocalDateTime ldt) {
