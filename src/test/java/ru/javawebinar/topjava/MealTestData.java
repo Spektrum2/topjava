@@ -22,7 +22,6 @@ public class MealTestData {
     public static final LocalDate ADMIN_START_DATE = LocalDate.of(2020, Month.JANUARY, 29);
     public static final LocalDate ADMIN_END_DATE = LocalDate.of(2020, Month.JANUARY, 30);
 
-
     public static final Meal userMeal = new Meal(USER_MEAL_ID, LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0), "Завтрак", 500);
     public static final Meal userMeal1 = new Meal(START_SEQ + 4, LocalDateTime.of(2020, Month.JANUARY, 30, 13, 0), "Обед", 1000);
     public static final Meal userMeal2 = new Meal(START_SEQ + 5, LocalDateTime.of(2020, Month.JANUARY, 30, 20, 0), "Ужин", 500);

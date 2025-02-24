@@ -179,5 +179,4 @@ public class MealServiceTest {
         List<Meal> allAdmin = service.getAll(ADMIN_ID);
         assertMatch(allAdmin, adminMeal6, adminMeal5, adminMeal4, adminMeal3, adminMeal2, adminMeal1, adminMeal);
     }
-
 }
