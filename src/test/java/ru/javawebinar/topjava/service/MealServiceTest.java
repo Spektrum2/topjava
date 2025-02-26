@@ -96,8 +96,7 @@ public class MealServiceTest {
         Meal mealAdmin = service.get(ADMIN_MEAL_ID, ADMIN_ID);
         assertMatch(mealAdmin, MealTestData.adminMeal);
     }
-
-
+    
     @Test
     public void getMealNotFoundForUser() {
         assertThrows(NotFoundException.class, () -> service.get(NOT_FOUND, USER_ID));
