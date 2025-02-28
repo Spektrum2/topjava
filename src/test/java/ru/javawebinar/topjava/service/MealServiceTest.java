@@ -4,7 +4,6 @@ import org.junit.AfterClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.Stopwatch;
-import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -20,8 +19,9 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertThrows;
 import static ru.javawebinar.topjava.MealTestData.*;
@@ -36,8 +36,7 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
     private static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
-    private static final Map<String, Long> testTimes = new HashMap<>();
-    private static long totalTimeNanos = 0;
+    private static final Map<String, Long> testTimes = new LinkedHashMap<>();
 
     @Autowired
     private MealService service;
@@ -46,34 +45,19 @@ public class MealServiceTest {
     public Stopwatch stopwatch = new Stopwatch() {
         @Override
         protected void finished(long nanos, Description description) {
-            long timeMillis = nanos / 1_000_000;
+            long timeMillis = TimeUnit.NANOSECONDS.toMillis(nanos);
             log.info("Test {} took {} ms", description.getMethodName(), timeMillis);
             testTimes.put(description.getMethodName(), timeMillis);
-            totalTimeNanos += nanos;
-        }
-    };
-
-    @Rule
-    public TestWatcher testWatcher = new TestWatcher() {
-        @Override
-        protected void succeeded(Description description) {
-            log.info("Test {} succeeded", description.getMethodName());
-        }
-
-        @Override
-        protected void finished(Description description) {
-            log.info("Test {} finished", description.getMethodName());
         }
     };
 
     @AfterClass
     public static void tearDownClass() throws Exception {
-        log.info("=== Test Execution Summary ===");
-        for (Map.Entry<String, Long> entry : testTimes.entrySet()) {
-            log.info("Test '{}' - {} ms", entry.getKey(), entry.getValue());
-        }
-        long totalTimeMillis = totalTimeNanos / 1_000_000;
-        log.info("Total time: {} ms", totalTimeMillis);
+        StringBuilder summary = new StringBuilder("\n===== Test Execution Summary =====\n");
+        testTimes.forEach((testName, timeMillis) ->
+                summary.append(String.format("%-25s %4d ms%n", testName, timeMillis))
+        );
+        log.info(summary.toString());
     }
 
     @Test
