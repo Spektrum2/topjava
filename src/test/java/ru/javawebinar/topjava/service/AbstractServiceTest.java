@@ -57,10 +57,9 @@ public abstract class AbstractServiceTest {
 
     @AfterClass
     public static void printResult() {
-        testResults.forEach((testType, profileResults) -> {
-            String summary = buildSummary(testType, profileResults);
-            log.info(summary);
-        });
+        StringBuilder finalSummary = new StringBuilder();
+        testResults.forEach((testType, profileResults) -> finalSummary.append(buildSummary(testType, profileResults)));
+        log.info(finalSummary.toString());
     }
 
     private static String buildSummary(String testType, Map<String, StringBuilder> profileResults) {
