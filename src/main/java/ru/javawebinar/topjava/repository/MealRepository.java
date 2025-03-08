@@ -24,5 +24,4 @@ public interface MealRepository {
     default Meal getWithUser(int id, int userId) {
         throw new UnsupportedOperationException("Method not supported");
     }
-
 }
