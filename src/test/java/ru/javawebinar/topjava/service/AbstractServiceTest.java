@@ -42,7 +42,7 @@ public abstract class AbstractServiceTest {
             StringBuilder results = testResults
                     .computeIfAbsent(testType, k -> new LinkedHashMap<>())
                     .computeIfAbsent(profile, k -> new StringBuilder());
-            String result = String.format("\n%-25s %7d", description.getMethodName(), TimeUnit.NANOSECONDS.toMillis(nanos));
+            String result = String.format("\n%-31s %7d", description.getMethodName(), TimeUnit.NANOSECONDS.toMillis(nanos));
             results.append(result);
             log.info(result + " ms\n");
         }
@@ -51,15 +51,15 @@ public abstract class AbstractServiceTest {
     @AfterClass
     public static void printResult() {
         testResults.forEach((testType, profileResults) -> {
-            log.info("\n=================================");
+            log.info("\n=======================================");
             log.info("Test Type: " + testType);
             profileResults.forEach((profile, results) -> {
-                log.info("\n---------------------------------" +
+                log.info("\n---------------------------------------" +
                         "\nProfile: " + profile +
-                        "\nTest                 Duration, ms" +
-                        "\n---------------------------------" +
+                        "\nTest                       Duration, ms" +
+                        "\n---------------------------------------" +
                         results +
-                        "\n---------------------------------");
+                        "\n---------------------------------------");
             });
         });
     }
