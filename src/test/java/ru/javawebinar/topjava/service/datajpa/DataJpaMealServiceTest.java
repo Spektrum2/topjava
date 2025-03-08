@@ -9,12 +9,11 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import static org.junit.Assert.assertThrows;
 import static ru.javawebinar.topjava.MealTestData.*;
+import static ru.javawebinar.topjava.MealTestData.NOT_FOUND;
 import static ru.javawebinar.topjava.UserTestData.*;
-import static ru.javawebinar.topjava.UserTestData.NOT_FOUND;
 
 @ActiveProfiles(Profiles.DATAJPA)
 public class DataJpaMealServiceTest extends AbstractMealServiceTest {
-
 
     @Test
     public void getWithUser() {

@@ -6,9 +6,10 @@ import org.junit.rules.Stopwatch;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestContextManager;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -16,8 +17,11 @@ import ru.javawebinar.topjava.ActiveDbProfileResolver;
 import ru.javawebinar.topjava.Profiles;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -32,6 +36,9 @@ public abstract class AbstractServiceTest {
     private static final Logger log = getLogger("result");
 
     private static final Map<String, Map<String, StringBuilder>> testResults = new LinkedHashMap<>();
+
+    @Autowired
+    private Environment environment;
 
     @Rule
     public final Stopwatch stopwatch = new Stopwatch() {
@@ -51,41 +58,39 @@ public abstract class AbstractServiceTest {
     @AfterClass
     public static void printResult() {
         testResults.forEach((testType, profileResults) -> {
-            log.info("\n=======================================");
-            log.info("Test Type: " + testType);
-            profileResults.forEach((profile, results) -> {
-                log.info("\n---------------------------------------" +
-                        "\nProfile: " + profile +
-                        "\nTest                       Duration, ms" +
-                        "\n---------------------------------------" +
-                        results +
-                        "\n---------------------------------------");
-            });
+            String summary = buildSummary(testType, profileResults);
+            log.info(summary);
         });
+    }
+
+    private static String buildSummary(String testType, Map<String, StringBuilder> profileResults) {
+        StringJoiner summary = new StringJoiner("\n", "\n", "");
+        summary.add("=======================================");
+        summary.add("Test Type: " + testType);
+        profileResults.forEach((profile, results) -> {
+            summary.add("---------------------------------------");
+            summary.add("Profile: " + profile);
+            summary.add("Test                       Duration, ms");
+            summary.add("---------------------------------------");
+            summary.add(results.toString().trim());
+            summary.add("---------------------------------------");
+        });
+        return summary.toString();
     }
 
     private String getTestType() {
         String className = getClass().getSimpleName();
-        if (className.contains("Meal")) {
-            return "MealServiceTest";
-        } else if (className.contains("User")) {
-            return "UserServiceTest";
-        }
-        return "UnknownTest";
+        return Stream.of(new String[]{"MealServiceTest", "UserServiceTest"})
+                .filter(className::contains)
+                .findFirst()
+                .orElse("UnknownTest");
     }
 
     private String getCurrentProfile() {
-        try {
-            TestContextManager testContextManager = new TestContextManager(getClass());
-            String[] activeProfiles = testContextManager.getTestContext().getApplicationContext().getEnvironment().getActiveProfiles();
-            for (String profile : activeProfiles) {
-                if (profile.equals(Profiles.JDBC) || profile.equals(Profiles.JPA) || profile.equals(Profiles.DATAJPA)) {
-                    return profile;
-                }
-            }
-        } catch (Exception e) {
-            log.error("Failed to get active profiles", e);
-        }
-        return "default";
+        List<String> validProfiles = List.of(Profiles.JDBC, Profiles.JPA, Profiles.DATAJPA);
+        return Stream.of(environment.getActiveProfiles())
+                .filter(validProfiles::contains)
+                .findFirst()
+                .orElse("default");
     }
 }
