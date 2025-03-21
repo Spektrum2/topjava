@@ -127,22 +127,4 @@
         <context:component-scan base-package="ru.javawebinar.**.repository.datajpa"/>
         <jpa:repositories base-package="ru.javawebinar.**.repository.datajpa"/>
     </beans>
-
-    <beans profile="userServiceTest">
-        <bean id="cacheManager" class="org.springframework.cache.support.NoOpCacheManager"/>
-
-        <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
-              p:dataSource-ref="dataSource"
-              p:packagesToScan="ru.javawebinar.**.model">
-            <property name="jpaPropertyMap">
-                <map>
-                    <entry key="hibernate.cache.use_second_level_cache" value="${hibernate.cache.use_second_level_cache}"/>
-                    <entry key="hibernate.cache.use_query_cache" value="${hibernate.cache.use_query_cache}"/>
-                </map>
-            </property>
-            <property name="jpaVendorAdapter">
-                <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" p:showSql="${jpa.showSql}"/>
-            </property>
-        </bean>
-    </beans>
 </beans>

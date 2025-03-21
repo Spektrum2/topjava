@@ -6,7 +6,10 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
+import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.User;
+
+import java.util.List;
 
 @Transactional(readOnly = true)
 public interface CrudUserRepository extends JpaRepository<User, Integer> {
@@ -17,7 +20,10 @@ public interface CrudUserRepository extends JpaRepository<User, Integer> {
 
     User getByEmail(String email);
 
-    @EntityGraph(attributePaths = {"meals", "roles"})
+    @Query("SELECT m FROM Meal m WHERE m.user.id = ?1 ORDER BY m.dateTime DESC")
+    List<Meal> getMealsByUserId(int userId);
+
+    @EntityGraph(attributePaths = {"roles"})
     @Query("SELECT u FROM User u WHERE u.id=?1")
-    User getWithMeals(int id);
+    User getWithRoles(int id);
 }
