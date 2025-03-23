@@ -24,6 +24,27 @@ public class JdbcUserRepository implements UserRepository {
 
     private static final BeanPropertyRowMapper<User> ROW_MAPPER = BeanPropertyRowMapper.newInstance(User.class);
 
+    private static final ResultSetExtractor<List<User>> USER_WITH_ROLES_EXTRACTOR = rs -> {
+        Map<Integer, User> userMap = new LinkedHashMap<>();
+
+        while (rs.next()) {
+            int userId = rs.getInt("id");
+            User user = userMap.get(userId);
+
+            if (user == null) {
+                user = ROW_MAPPER.mapRow(rs, rs.getRow());
+                user.setRoles(new HashSet<>());
+                userMap.put(userId, user);
+            }
+
+            Optional.ofNullable(rs.getString("role"))
+                    .map(Role::valueOf)
+                    .ifPresent(user.getRoles()::add);
+        }
+
+        return new ArrayList<>(userMap.values());
+    };
+
     private final JdbcTemplate jdbcTemplate;
 
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -74,7 +95,7 @@ public class JdbcUserRepository implements UserRepository {
     public User get(int id) {
         String sql = "SELECT u.id, u.name, u.email, u.password, u.enabled, u.registered, u.calories_per_day, r.role " +
                 "FROM users u LEFT JOIN user_role r ON u.id = r.user_id WHERE u.id = ?";
-        List<User> users = jdbcTemplate.query(sql, getUserWithRolesExtractor(), id);
+        List<User> users = jdbcTemplate.query(sql, USER_WITH_ROLES_EXTRACTOR, id);
         return DataAccessUtils.singleResult(users);
     }
 
@@ -83,7 +104,7 @@ public class JdbcUserRepository implements UserRepository {
 //        return jdbcTemplate.queryForObject("SELECT * FROM users WHERE email=?", ROW_MAPPER, email);
         String sql = "SELECT u.id, u.name, u.email, u.password, u.enabled, u.registered, u.calories_per_day, r.role " +
                 "FROM users u LEFT JOIN user_role r ON u.id = r.user_id WHERE u.email = ?";
-        List<User> users = jdbcTemplate.query(sql, getUserWithRolesExtractor(), email);
+        List<User> users = jdbcTemplate.query(sql, USER_WITH_ROLES_EXTRACTOR, email);
         return DataAccessUtils.singleResult(users);
     }
 
@@ -91,7 +112,7 @@ public class JdbcUserRepository implements UserRepository {
     public List<User> getAll() {
         String sql = "SELECT u.id, u.name, u.email, u.password, u.enabled, u.registered, u.calories_per_day, r.role " +
                 "FROM users u LEFT JOIN user_role r ON u.id = r.user_id ORDER BY u.name, u.email";
-        return jdbcTemplate.query(sql, getUserWithRolesExtractor());
+        return jdbcTemplate.query(sql, USER_WITH_ROLES_EXTRACTOR);
     }
 
     private void insertRoles(User user) {
@@ -108,28 +129,5 @@ public class JdbcUserRepository implements UserRepository {
 
     private void deleteRoles(User user) {
         jdbcTemplate.update("DELETE FROM user_role WHERE user_id=?", user.getId());
-    }
-
-    private ResultSetExtractor<List<User>> getUserWithRolesExtractor() {
-        return rs -> {
-            Map<Integer, User> userMap = new LinkedHashMap<>();
-
-            while (rs.next()) {
-                int userId = rs.getInt("id");
-                User user = userMap.get(userId);
-
-                if (user == null) {
-                    user = ROW_MAPPER.mapRow(rs, rs.getRow());
-                    user.setRoles(new HashSet<>());
-                    userMap.put(userId, user);
-                }
-
-                Optional.ofNullable(rs.getString("role"))
-                        .map(Role::valueOf)
-                        .ifPresent(user.getRoles()::add);
-            }
-
-            return new ArrayList<>(userMap.values());
-        };
     }
 }
