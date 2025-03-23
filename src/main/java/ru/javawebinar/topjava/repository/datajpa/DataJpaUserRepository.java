@@ -48,7 +48,7 @@ public class DataJpaUserRepository implements UserRepository {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public User getWithMeals(int id) {
         return Optional.ofNullable(crudUserRepository.getWithRoles(id))
                 .map(user -> {
