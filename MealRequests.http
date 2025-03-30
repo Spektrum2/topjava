@@ -1,0 +1,72 @@
+### 1. Get all meals
+GET http://localhost:8080/topjava/rest/user/meals
+
+### 2. Filter meals by date/time (5 variants)
+
+### 2.1 Filter meals by date and time
+GET http://localhost:8080/topjava/rest/user/meals/filter?startDate=2020-01-30&endDate=2020-01-30&startTime=10:00&endTime=12:00
+
+### 2.2 Filter meals by dates only
+GET http://localhost:8080/topjava/rest/user/meals/filter?startDate=2020-01-30&endDate=2020-01-30
+
+### 2.3 Filter meals by time only
+GET http://localhost:8080/topjava/rest/user/meals/filter?startTime=10:00&endTime=12:00
+
+### 2.4 Get all (no filters)
+GET http://localhost:8080/topjava/rest/user/meals/filter
+
+### 2.5 Filter meals by startDate
+GET http://localhost:8080/topjava/rest/user/meals/filter?startDate=2020-01-31
+
+### 2.6 Filter meals by endDate
+GET http://localhost:8080/topjava/rest/user/meals/filter?endDate=2020-01-30
+
+### 3. Get meal
+GET http://localhost:8080/topjava/rest/user/meals/100003
+
+### 4. Get meal with user
+GET http://localhost:8080/topjava/rest/user/meals/100003/with-user
+
+### 5. Create meal
+POST http://localhost:8080/topjava/rest/user/meals
+Content-Type: application/json
+
+{
+  "dateTime": "2023-05-20T14:00:00",
+  "description": "New test meal",
+  "calories": 350
+}
+
+### 6. Update meal
+PUT http://localhost:8080/topjava/rest/user/meals/100003
+Content-Type: application/json
+
+{
+  "dateTime": "2020-01-28T14:00:00",
+  "description": "Updated breakfast",
+  "calories": 400
+}
+
+### 7. Delete meal
+DELETE http://localhost:8080/topjava/rest/user/meals/100003
+
+### 8. Negative tests
+
+### 8.1 Invalid date format
+GET http://localhost:8080/topjava/rest/user/meals/filter?startDate=30-01-2020
+
+### 8.2 Not found meal
+GET http://localhost:8080/topjava/rest/user/meals/999999
+
+### 8.3 Invalid meal data (validation)
+POST http://localhost:8080/topjava/rest/user/meals
+Content-Type: application/json
+
+{
+  "dateTime": "invalid-date",
+  "description": "",
+  "calories": -100
+}
+
+### 9. Get user with meals
+GET http://localhost:8080/topjava/rest/profile/100000/with-meals
