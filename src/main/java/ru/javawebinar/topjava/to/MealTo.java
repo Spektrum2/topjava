@@ -3,8 +3,7 @@ package ru.javawebinar.topjava.to;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDateTime;
-
-import static org.hibernate.proxy.HibernateProxyHelper.getClassWithoutInitializingProxy;
+import java.util.Objects;
 
 public class MealTo {
     private final Integer id;
@@ -50,15 +49,20 @@ public class MealTo {
     }
 
     @Override
-    public final boolean equals(Object o) {
+    public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClassWithoutInitializingProxy(this) != getClassWithoutInitializingProxy(o)) return false;
-        return getId() != null && getId().equals(((MealTo) o).getId());
+        if (o == null || getClass() != o.getClass()) return false;
+        MealTo mealTo = (MealTo) o;
+        return calories == mealTo.calories &&
+                excess == mealTo.excess &&
+                Objects.equals(id, mealTo.id) &&
+                Objects.equals(dateTime, mealTo.dateTime) &&
+                Objects.equals(description, mealTo.description);
     }
 
     @Override
-    public final int hashCode() {
-        return getClassWithoutInitializingProxy(this).hashCode();
+    public int hashCode() {
+        return Objects.hash(id, dateTime, description, calories, excess);
     }
 
     @Override
