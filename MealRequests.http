@@ -68,5 +68,8 @@ Content-Type: application/json
   "calories": -100
 }
 
-### 9. Get user with meals
-GET http://localhost:8080/topjava/rest/profile/100000/with-meals
+### 9. Get user with meals for admin
+GET http://localhost:8080/topjava/rest/admin/users/100000/with-meals
+
+### 10. Get user with meals for user
+GET http://localhost:8080/topjava/rest/profile/with-meals

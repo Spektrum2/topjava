@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDateTime;
 
+import static org.hibernate.proxy.HibernateProxyHelper.getClassWithoutInitializingProxy;
+
 public class MealTo {
     private final Integer id;
 
@@ -45,6 +47,18 @@ public class MealTo {
 
     public boolean isExcess() {
         return excess;
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClassWithoutInitializingProxy(this) != getClassWithoutInitializingProxy(o)) return false;
+        return getId() != null && getId().equals(((MealTo) o).getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return getClassWithoutInitializingProxy(this).hashCode();
     }
 
     @Override

@@ -101,12 +101,21 @@ class MealRestControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void getBetweenWithEmptyAndNullParameters() throws Exception {
+        perform(MockMvcRequestBuilders.get(REST_URL + "filter?startDate=&endTime="))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(MEAL_TO_MATCHER.contentJson(mealTo7, mealTo6, mealTo5, mealTo4, mealTo3, mealTo2, mealTo1));
+    }
+
+    @Test
     void getWithUser() throws Exception {
         ResultActions action = perform(MockMvcRequestBuilders.get(REST_URL + MEAL1_ID + "/with-user"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
 
         Meal mealWithUser = MEAL_MATCHER.readFromJson(action);
+        MEAL_MATCHER.assertMatch(mealWithUser, meal1);
         USER_MATCHER.assertMatch(mealWithUser.getUser(), user);
     }
 }

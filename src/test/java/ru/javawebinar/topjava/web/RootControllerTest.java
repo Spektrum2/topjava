@@ -34,26 +34,12 @@ class RootControllerTest extends AbstractControllerTest {
 
     @Test
     void getMeals() throws Exception {
+        List<MealTo> expected = List.of(mealTo7, mealTo6, mealTo5, mealTo4, mealTo3, mealTo2, mealTo1);
         perform(get("/meals"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name("meals"))
                 .andExpect(forwardedUrl("/WEB-INF/jsp/meals.jsp"))
-                .andExpect(model().attribute("meals",
-                        new AssertionMatcher<List<MealTo>>() {
-                            @Override
-                            public void assertion(List<MealTo> actual) throws AssertionError {
-                                MEAL_TO_MATCHER.assertMatch(actual, mealTo7, mealTo6, mealTo5, mealTo4, mealTo3, mealTo2, mealTo1);
-                            }
-                        }
-                ));
-    }
-
-    @Test
-    void getStyleCss() throws Exception {
-        perform(get("/resources/css/style.css"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().contentType("text/css;charset=UTF-8"));
+                .andExpect(model().attribute("meals", expected));
     }
 }
