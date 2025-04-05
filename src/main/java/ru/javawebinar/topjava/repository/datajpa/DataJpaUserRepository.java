@@ -7,6 +7,7 @@ import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class DataJpaUserRepository implements UserRepository {
@@ -51,8 +52,11 @@ public class DataJpaUserRepository implements UserRepository {
     @Override
     @Transactional
     public User enable(int id, boolean enabled) {
-        User user = get(id);
-        user.setEnabled(enabled);
-        return crudRepository.save(user);
+        return Optional.ofNullable(get(id))
+                .map(user -> {
+                    user.setEnabled(enabled);
+                    return save(user);
+                })
+                .orElse(null);
     }
 }

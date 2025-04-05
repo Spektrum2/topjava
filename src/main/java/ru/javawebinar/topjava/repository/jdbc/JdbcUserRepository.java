@@ -120,4 +120,15 @@ public class JdbcUserRepository implements UserRepository {
         }
         return u;
     }
+
+    @Override
+    @Transactional
+    public User enable(int id, boolean enabled) {
+        return Optional.ofNullable(get(id))
+                .map(user -> {
+                    user.setEnabled(enabled);
+                    return save(user);
+                })
+                .orElse(null);
+    }
 }

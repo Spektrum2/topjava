@@ -10,6 +10,7 @@ import ru.javawebinar.topjava.repository.UserRepository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @Transactional(readOnly = true)
@@ -71,5 +72,16 @@ public class JpaUserRepository implements UserRepository {
     public List<User> getAll() {
         return em.createNamedQuery(User.ALL_SORTED, User.class)
                 .getResultList();
+    }
+
+    @Override
+    @Transactional
+    public User enable(int id, boolean enabled) {
+        return Optional.ofNullable(get(id))
+                .map(user -> {
+                    user.setEnabled(enabled);
+                    return save(user);
+                })
+                .orElse(null);
     }
 }
