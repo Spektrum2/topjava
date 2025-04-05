@@ -15,7 +15,7 @@ function enable(chkbox, id) {
         type: "PATCH",
     }).done(function () {
         chkbox.closest("tr").attr("data-user-enabled", enabled);
-        successNoty(enabled ? "Recording is activated" : "Recording is deactivated");
+        successNoty(enabled ? "User enabled" : "User disabled");
     }).fail(function () {
         $(chkbox).prop("checked", !enabled);
     });
