@@ -31,13 +31,13 @@ public class InMemoryUserRepository extends InMemoryBaseRepository<User> impleme
     }
 
     @Override
-    public User enable(int id, boolean enabled) {
+    public boolean enable(int id, boolean enabled) {
         return Optional.ofNullable(get(id))
                 .map(user -> {
                     user.setEnabled(enabled);
-                    return save(user);
+                    return true;
                 })
-                .orElse(null);
+                .orElse(false);
     }
 
     @Override

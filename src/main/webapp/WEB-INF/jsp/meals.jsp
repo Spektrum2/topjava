@@ -20,24 +20,24 @@
                             <label for="startDate" class="col-form-label"><spring:message
                                     code="meal.startDate"/>:</label>
                             <input type="date" class="form-control" id="startDate" name="startDate"
-                                   placeholder="<spring:message code="meal.startDate"/>" value="${param.startDate}">
+                                   placeholder="<spring:message code="meal.startDate"/>">
                         </div>
                         <div class="col-2">
                             <label for="endDate" class="col-form-label"><spring:message code="meal.endDate"/>:</label>
                             <input type="date" class="form-control" id="endDate" name="endDate"
-                                   placeholder="<spring:message code="meal.endDate"/>" value="${param.endDate}">
+                                   placeholder="<spring:message code="meal.endDate"/>">
                         </div>
                         <div class="offset-2 col-3">
                             <label for="startTime" class="col-form-label"><spring:message
                                     code="meal.startTime"/>:</label>
                             <input type="time" class="form-control" id="startTime" name="startTime"
-                                   placeholder="<spring:message code="meal.startTime"/>" value="${param.startTime}">
+                                   placeholder="<spring:message code="meal.startTime"/>">
                         </div>
                         <div class="col-3">
                             <label for="endTime" class="col-form-label"><spring:message
                                     code="meal.endTime"/>:</label>
                             <input type="time" class="form-control" id="endTime" name="endTime"
-                                   placeholder="<spring:message code="meal.endTime"/>" value="${param.endTime}">
+                                   placeholder="<spring:message code="meal.endTime"/>">
                         </div>
                     </div>
                 </form>

@@ -123,12 +123,7 @@ public class JdbcUserRepository implements UserRepository {
 
     @Override
     @Transactional
-    public User enable(int id, boolean enabled) {
-        return Optional.ofNullable(get(id))
-                .map(user -> {
-                    user.setEnabled(enabled);
-                    return save(user);
-                })
-                .orElse(null);
+    public boolean enable(int id, boolean enabled) {
+        return jdbcTemplate.update("UPDATE users SET enabled=? WHERE id=?", enabled, id) > 0;
     }
 }

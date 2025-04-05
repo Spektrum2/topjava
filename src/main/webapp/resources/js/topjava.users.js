@@ -16,7 +16,7 @@ function enable(chkbox, id) {
         data: "enabled=" + enabled
     }).done(function () {
         chkbox.closest("tr").attr("data-user-enabled", enabled);
-        successNoty(enabled ? "common.enabled" : "common.disabled");
+        successNoty(enabled ? "Recording is activated" : "Recording is deactivated");
     }).fail(function () {
         $(chkbox).prop("checked", !enabled);
     });

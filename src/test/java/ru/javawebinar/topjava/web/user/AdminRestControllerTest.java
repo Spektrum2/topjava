@@ -96,7 +96,7 @@ class AdminRestControllerTest extends AbstractControllerTest {
 
     @Test
     void enable() throws Exception {
-        perform(MockMvcRequestBuilders.post("/admin/users/" + USER_ID + "?enabled=false")
+        perform(MockMvcRequestBuilders.post(REST_URL + USER_ID + "?enabled=false")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
         User userEnabled = new User(user);

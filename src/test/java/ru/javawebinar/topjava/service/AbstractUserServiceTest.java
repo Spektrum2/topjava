@@ -86,6 +86,11 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
     }
 
     @Test
+    void enableNotFound() {
+        assertThrows(NotFoundException.class, () -> service.enable(NOT_FOUND, false));
+    }
+
+    @Test
     void createWithException() throws Exception {
         validateRootCause(ConstraintViolationException.class, () -> service.create(new User(null, "  ", "mail@yandex.ru", "password", Role.USER)));
         validateRootCause(ConstraintViolationException.class, () -> service.create(new User(null, "User", "  ", "password", Role.USER)));
