@@ -11,9 +11,8 @@ const ctx = {
 function enable(chkbox, id) {
     const enabled = chkbox.is(":checked");
     $.ajax({
-        url: userAjaxUrl + id,
-        type: "POST",
-        data: "enabled=" + enabled
+        url: `${userAjaxUrl}${id}?enabled=${enabled}`,
+        type: "PATCH",
     }).done(function () {
         chkbox.closest("tr").attr("data-user-enabled", enabled);
         successNoty(enabled ? "Recording is activated" : "Recording is deactivated");
