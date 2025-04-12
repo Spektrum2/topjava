@@ -15,6 +15,9 @@ function makeEditable(datatableApi) {
 function add() {
     $("#modalTitle").html(i18n["addTitle"]);
     form.find(":input").val("");
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    $("#dateTime").val(now.toISOString().slice(0, 16));
     $("#editRow").modal();
 }
 
