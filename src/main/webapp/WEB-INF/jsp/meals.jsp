@@ -80,7 +80,7 @@
 
                     <div class="form-group">
                         <label for="dateTime" class="col-form-label"><spring:message code="meal.dateTime"/></label>
-                        <input type="datetime-local" class="form-control" id="dateTime" name="dateTime"
+                        <input class="form-control" id="dateTime" name="dateTime" autocomplete="off"
                                placeholder="<spring:message code="meal.dateTime"/>">
                     </div>
 
@@ -112,13 +112,8 @@
 </div>
 <jsp:include page="fragments/footer.jsp"/>
 </body>
-<script type="text/javascript">
-    const i18n = {}; // https://learn.javascript.ru/object
-    i18n["addTitle"] = '<spring:message code="meal.add"/>';
-    i18n["editTitle"] = '<spring:message code="meal.edit"/>';
-
-    <c:forEach var="key" items='${["common.deleted","common.saved","common.enabled","common.disabled","common.errorStatus","common.confirm"]}'>
-    i18n["${key}"] = "<spring:message code="${key}"/>";
-    </c:forEach>
-</script>
+<jsp:include page="fragments/i18n.jsp">
+    <jsp:param name="addTitle" value="meal.add"/>
+    <jsp:param name="editTitle" value="meal.edit"/>
+</jsp:include>
 </html>

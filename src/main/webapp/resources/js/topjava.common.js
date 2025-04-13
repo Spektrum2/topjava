@@ -17,7 +17,7 @@ function add() {
     form.find(":input").val("");
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    $("#dateTime").val(now.toISOString().slice(0, 16));
+    $("#dateTime").val(now.toISOString().slice(0, 16).replace('T', ' '));
     $("#editRow").modal();
 }
 
@@ -49,10 +49,16 @@ function updateTableByData(data) {
 }
 
 function save() {
+    const formData = {};
+    form.serializeArray().forEach(item => item.name === 'dateTime'
+        ? formData[item.name] = item.value.replace(' ', 'T')
+        : formData[item.name] = item.value);
+
     $.ajax({
         type: "POST",
         url: ctx.ajaxUrl,
-        data: form.serialize()
+        contentType: "application/json",
+        data: JSON.stringify(formData)
     }).done(function () {
         $("#editRow").modal("hide");
         ctx.updateTable();
