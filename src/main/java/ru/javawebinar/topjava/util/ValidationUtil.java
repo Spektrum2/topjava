@@ -79,19 +79,11 @@ public class ValidationUtil {
     public static String getErrorMessage(FieldError fe, MessageSource messageSource) {
         String fieldNameKey = "field." + fe.getField();
         String fieldName = messageSource.getMessage(fieldNameKey, null, LocaleContextHolder.getLocale());
-        String message = messageSource.getMessage(fe, LocaleContextHolder.getLocale());
 
-        if ("NotNull".equals(fe.getCode()) || "NotBlank".equals(fe.getCode())) {
-            message = messageSource.getMessage("validation.notEmpty",
-                    new Object[]{fieldName},
-                    LocaleContextHolder.getLocale());
-        } else if ("Size".equals(fe.getCode())) {
-            Object[] args = fe.getArguments();
-            message = messageSource.getMessage("validation.size",
-                    new Object[]{fieldName, args[2], args[1]},
-                    LocaleContextHolder.getLocale());
-        }
-
-        return message;
+        return messageSource.getMessage(
+                fe.getCode(),
+                "Size".equals(fe.getCode()) ? new Object[]{fieldName, fe.getArguments()[2], fe.getArguments()[1]} : new Object[]{fieldName},
+                LocaleContextHolder.getLocale()
+        );
     }
 }
