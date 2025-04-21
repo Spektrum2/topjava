@@ -5,12 +5,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import ru.javawebinar.topjava.UserTestData;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.service.UserService;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 
+import java.util.Collections;
+import java.util.Date;
+
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -143,4 +150,34 @@ class AdminRestControllerTest extends AbstractControllerTest {
 
         assertFalse(userService.get(USER_ID).isEnabled());
     }
+
+    @Test
+    void createWithException() throws Exception {
+        User newUser = new User(null, "", "", "", 1555, false, new Date(), Collections.singleton(Role.USER));
+        perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(userHttpBasic(admin))
+                .content(jsonWithPassword(newUser, newUser.getPassword())))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(content().string(allOf(
+                        containsString("[Name] must not be empty"),
+                        containsString("Size of [Name] must be between 2 and 128"),
+                        containsString("[Email] must not be empty"),
+                        containsString("[Password] must not be empty"),
+                        containsString("Size of [Password] must be between 5 and 128")
+                )));
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    void createWithDuplicateEmail() throws Exception {
+        User duplicateUser = new User(null, "New", "user@yandex.ru", "newPass", 1555, false, new Date(), Collections.singleton(Role.USER));
+        perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(userHttpBasic(admin))
+                .content(jsonWithPassword(duplicateUser, duplicateUser.getPassword())))
+                .andExpect(status().isConflict())
+                .andExpect(content().string(containsString("User with this email already exists")));
+    }
+
 }
