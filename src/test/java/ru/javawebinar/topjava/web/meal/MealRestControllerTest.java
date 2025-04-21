@@ -142,10 +142,10 @@ class MealRestControllerTest extends AbstractControllerTest {
                 .content(JsonUtil.writeValue(newMeal)))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(content().string(allOf(
-                        containsString("[Date/Time] must not be empty"),
-                        containsString("Size of [Description] must be between 2 and 120"),
-                        containsString("[Description] must not be empty"),
-                        containsString("[Calories] must not be empty")
+                        containsString("[Дата/Время] не должно быть пустым"),
+                        containsString("Размер [Описание] должен быть между 2 и 120"),
+                        containsString("[Описание] не должно быть пустым"),
+                        containsString("[Калории] не должно быть пустым")
                 )));
     }
 
@@ -158,7 +158,7 @@ class MealRestControllerTest extends AbstractControllerTest {
                 .with(userHttpBasic(user))
                 .content(JsonUtil.writeValue(duplicateMeal)))
                 .andExpect(status().isConflict())
-                .andExpect(content().string(containsString("You already have meal with this date/time")));
+                .andExpect(content().string(containsString("У вас уже есть еда с такой датой/временем")));
     }
 
 

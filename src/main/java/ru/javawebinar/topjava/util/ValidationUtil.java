@@ -10,7 +10,6 @@ import ru.javawebinar.topjava.util.exception.IllegalRequestDataException;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import javax.validation.*;
-import java.util.Objects;
 import java.util.Set;
 
 public class ValidationUtil {
@@ -77,15 +76,10 @@ public class ValidationUtil {
         return rootCause != null ? rootCause : t;
     }
 
-    public static String getErrorResponse(FieldError fe, MessageSource messageSource) {
+    public static String getErrorMessage(FieldError fe, MessageSource messageSource) {
         String fieldNameKey = "field." + fe.getField();
         String fieldName = messageSource.getMessage(fieldNameKey, null, LocaleContextHolder.getLocale());
-
-        String message = messageSource.getMessage(
-                Objects.requireNonNull(fe.getCode()),
-                fe.getArguments(),
-                fe.getDefaultMessage(),
-                LocaleContextHolder.getLocale());
+        String message = messageSource.getMessage(fe, LocaleContextHolder.getLocale());
 
         if ("NotNull".equals(fe.getCode()) || "NotBlank".equals(fe.getCode())) {
             message = messageSource.getMessage("validation.notEmpty",

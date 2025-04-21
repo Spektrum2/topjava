@@ -100,11 +100,11 @@ class ProfileRestControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(content().string(allOf(
-                        containsString("[Name] must not be empty"),
-                        containsString("Size of [Name] must be between 2 and 100"),
-                        containsString("[Email] must not be empty"),
-                        containsString("[Password] must not be empty"),
-                        containsString("Size of [Password] must be between 5 and 32")
+                        containsString("[Имя] не должно быть пустым"),
+                        containsString("Размер [Имя] должен быть между 2 и 100"),
+                        containsString("[Почта] не должно быть пустым"),
+                        containsString("[Пароль] не должно быть пустым"),
+                        containsString("Размер [Пароль] должен быть между 5 и 32")
                 )));
     }
 
@@ -116,6 +116,6 @@ class ProfileRestControllerTest extends AbstractControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.writeValue(duplicateUser)))
                 .andExpect(status().isConflict())
-                .andExpect(content().string(containsString("User with this email already exists")));
+                .andExpect(content().string(containsString("Пользователь с такой почтой уже есть в приложении")));
     }
 }

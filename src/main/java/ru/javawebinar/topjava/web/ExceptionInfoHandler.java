@@ -9,7 +9,6 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -29,13 +28,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static ru.javawebinar.topjava.util.ValidationUtil.getErrorResponse;
+import static ru.javawebinar.topjava.util.ValidationUtil.getErrorMessage;
 import static ru.javawebinar.topjava.util.exception.ErrorType.*;
 
 @RestControllerAdvice(annotations = RestController.class)
 @Order(Ordered.HIGHEST_PRECEDENCE + 5)
 public class ExceptionInfoHandler {
     private static final Logger log = LoggerFactory.getLogger(ExceptionInfoHandler.class);
+    private static final Map<String, String> duplicateConstraints = Map.of(
+            "users_unique_email_idx", "user.email.duplicate",
+            "meal_unique_user_datetime_idx", "meal.date.duplicate"
+    );
 
     @Autowired
     private MessageSource messageSource;
@@ -54,11 +57,6 @@ public class ExceptionInfoHandler {
         String rootMsg = rootCause.getMessage() != null ? rootCause.getMessage().toLowerCase() : "";
         String typeMessage = messageSource.getMessage("validation.type", null, LocaleContextHolder.getLocale());
 
-        Map<String, String> duplicateConstraints = Map.of(
-                "users_unique_email_idx", "user.email.duplicate",
-                "meal_unique_user_datetime_idx", "meal.date.duplicate"
-        );
-
         Optional<String> duplicateMessageKey = duplicateConstraints.entrySet().stream()
                 .filter(entry -> rootMsg.contains(entry.getKey()))
                 .map(Map.Entry::getValue)
@@ -73,13 +71,7 @@ public class ExceptionInfoHandler {
 
             log.warn("Duplicate constraint violation at {}: {}", req.getRequestURL(), rootMsg);
 
-            return req.getRequestURI().contains("/rest/")
-                    ? ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(String.join(", ", errorMsg))
-                    : new ErrorInfo(req.getRequestURL().toString(),
-                    VALIDATION_ERROR,
-                    typeMessage,
-                    Collections.singletonList(errorMsg));
+            return new ErrorInfo(req.getRequestURL().toString(), VALIDATION_ERROR, typeMessage, Collections.singletonList(errorMsg));
         }
         return logAndGetErrorInfo(req, e, true, DATA_ERROR);
     }
@@ -99,29 +91,22 @@ public class ExceptionInfoHandler {
 
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Object handleMethodArgumentNotValidException(HttpServletRequest req, MethodArgumentNotValidException e) {
+    public ErrorInfo handleMethodArgumentNotValidException(HttpServletRequest req, MethodArgumentNotValidException e) {
         String typeMessage = messageSource.getMessage("validation.type", null, LocaleContextHolder.getLocale());
         List<String> errorDetails = e.getBindingResult().getFieldErrors().stream()
-                .map(fe -> getErrorResponse(fe, messageSource))
-                .sorted()
+                .map(fe -> getErrorMessage(fe, messageSource))
                 .toList();
 
         log.warn("Validation error at {}: {}", req.getRequestURL(), errorDetails);
 
-        return req.getRequestURI().contains("/rest/")
-                ? ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-                .body(String.join(", ", errorDetails))
-                : new ErrorInfo(req.getRequestURL().toString(),
-                VALIDATION_ERROR,
-                typeMessage,
-                errorDetails);
+        return new ErrorInfo(req.getRequestURL().toString(), VALIDATION_ERROR, typeMessage, errorDetails);
     }
 
     //    https://stackoverflow.com/questions/538870/should-private-helper-methods-be-static-if-they-can-be-static
     private static ErrorInfo logAndGetErrorInfo(HttpServletRequest req, Exception e, boolean logException, ErrorType errorType) {
         Throwable rootCause = ValidationUtil.getRootCause(e);
         String typeMessage = errorType.toString();
-        List<String> details = Collections.singletonList(rootCause.toString());
+        List<String> details = Collections.singletonList(rootCause.getMessage());
 
         if (logException) {
             log.error("{} at request {}: {}", errorType, req.getRequestURL(), details);

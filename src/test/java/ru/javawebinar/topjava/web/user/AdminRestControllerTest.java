@@ -160,11 +160,11 @@ class AdminRestControllerTest extends AbstractControllerTest {
                 .content(jsonWithPassword(newUser, newUser.getPassword())))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(content().string(allOf(
-                        containsString("[Name] must not be empty"),
-                        containsString("Size of [Name] must be between 2 and 128"),
-                        containsString("[Email] must not be empty"),
-                        containsString("[Password] must not be empty"),
-                        containsString("Size of [Password] must be between 5 and 128")
+                        containsString("[Имя] не должно быть пустым"),
+                        containsString("Размер [Имя] должен быть между 2 и 128"),
+                        containsString("[Почта] не должно быть пустым"),
+                        containsString("[Пароль] не должно быть пустым"),
+                        containsString("Размер [Пароль] должен быть между 5 и 128")
                 )));
     }
 
@@ -177,7 +177,7 @@ class AdminRestControllerTest extends AbstractControllerTest {
                 .with(userHttpBasic(admin))
                 .content(jsonWithPassword(duplicateUser, duplicateUser.getPassword())))
                 .andExpect(status().isConflict())
-                .andExpect(content().string(containsString("User with this email already exists")));
+                .andExpect(content().string(containsString("Пользователь с такой почтой уже есть в приложении")));
     }
 
 }
