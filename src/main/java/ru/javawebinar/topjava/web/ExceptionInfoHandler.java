@@ -52,7 +52,7 @@ public class ExceptionInfoHandler {
 
     @ResponseStatus(HttpStatus.CONFLICT)  // 409
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public Object conflict(HttpServletRequest req, DataIntegrityViolationException e) {
+    public ErrorInfo conflict(HttpServletRequest req, DataIntegrityViolationException e) {
         Throwable rootCause = ValidationUtil.getRootCause(e);
         String rootMsg = rootCause.getMessage() != null ? rootCause.getMessage().toLowerCase() : "";
         String typeMessage = messageSource.getMessage("validation.type", null, LocaleContextHolder.getLocale());
