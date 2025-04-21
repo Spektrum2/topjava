@@ -2,11 +2,16 @@ package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,13 +24,21 @@ import ru.javawebinar.topjava.util.exception.IllegalRequestDataException;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
+import static ru.javawebinar.topjava.util.ValidationUtil.getErrorResponse;
 import static ru.javawebinar.topjava.util.exception.ErrorType.*;
 
 @RestControllerAdvice(annotations = RestController.class)
 @Order(Ordered.HIGHEST_PRECEDENCE + 5)
 public class ExceptionInfoHandler {
     private static final Logger log = LoggerFactory.getLogger(ExceptionInfoHandler.class);
+
+    @Autowired
+    private MessageSource messageSource;
 
     //  http://stackoverflow.com/a/22358422/548473
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
@@ -36,9 +49,41 @@ public class ExceptionInfoHandler {
 
     @ResponseStatus(HttpStatus.CONFLICT)  // 409
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ErrorInfo conflict(HttpServletRequest req, DataIntegrityViolationException e) {
+    public Object conflict(HttpServletRequest req, DataIntegrityViolationException e) {
+        Throwable rootCause = ValidationUtil.getRootCause(e);
+        String rootMsg = rootCause.getMessage() != null ? rootCause.getMessage().toLowerCase() : "";
+        String typeMessage = messageSource.getMessage("validation.type", null, LocaleContextHolder.getLocale());
+
+        Map<String, String> duplicateConstraints = Map.of(
+                "users_unique_email_idx", "user.email.duplicate",
+                "meal_unique_user_datetime_idx", "meal.date.duplicate"
+        );
+
+        Optional<String> duplicateMessageKey = duplicateConstraints.entrySet().stream()
+                .filter(entry -> rootMsg.contains(entry.getKey()))
+                .map(Map.Entry::getValue)
+                .findFirst();
+
+        if (duplicateMessageKey.isPresent()) {
+            String errorMsg = messageSource.getMessage(
+                    duplicateMessageKey.get(),
+                    null,
+                    LocaleContextHolder.getLocale()
+            );
+
+            log.warn("Duplicate constraint violation at {}: {}", req.getRequestURL(), rootMsg);
+
+            return req.getRequestURI().contains("/rest/")
+                    ? ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(String.join(", ", errorMsg))
+                    : new ErrorInfo(req.getRequestURL().toString(),
+                    VALIDATION_ERROR,
+                    typeMessage,
+                    Collections.singletonList(errorMsg));
+        }
         return logAndGetErrorInfo(req, e, true, DATA_ERROR);
     }
+
 
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)  // 422
     @ExceptionHandler({IllegalRequestDataException.class, MethodArgumentTypeMismatchException.class, HttpMessageNotReadableException.class})
@@ -52,14 +97,38 @@ public class ExceptionInfoHandler {
         return logAndGetErrorInfo(req, e, true, APP_ERROR);
     }
 
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Object handleMethodArgumentNotValidException(HttpServletRequest req, MethodArgumentNotValidException e) {
+        String typeMessage = messageSource.getMessage("validation.type", null, LocaleContextHolder.getLocale());
+        List<String> errorDetails = e.getBindingResult().getFieldErrors().stream()
+                .map(fe -> getErrorResponse(fe, messageSource))
+                .sorted()
+                .toList();
+
+        log.warn("Validation error at {}: {}", req.getRequestURL(), errorDetails);
+
+        return req.getRequestURI().contains("/rest/")
+                ? ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(String.join(", ", errorDetails))
+                : new ErrorInfo(req.getRequestURL().toString(),
+                VALIDATION_ERROR,
+                typeMessage,
+                errorDetails);
+    }
+
     //    https://stackoverflow.com/questions/538870/should-private-helper-methods-be-static-if-they-can-be-static
     private static ErrorInfo logAndGetErrorInfo(HttpServletRequest req, Exception e, boolean logException, ErrorType errorType) {
         Throwable rootCause = ValidationUtil.getRootCause(e);
+        String typeMessage = errorType.toString();
+        List<String> details = Collections.singletonList(rootCause.toString());
+
         if (logException) {
-            log.error(errorType + " at request " + req.getRequestURL(), rootCause);
+            log.error("{} at request {}: {}", errorType, req.getRequestURL(), details);
         } else {
-            log.warn("{} at request  {}: {}", errorType, req.getRequestURL(), rootCause.toString());
+            log.warn("{} at request  {}: {}", errorType, req.getRequestURL(), details);
         }
-        return new ErrorInfo(req.getRequestURL(), errorType, rootCause.toString());
+
+        return new ErrorInfo(req.getRequestURL().toString(), errorType, typeMessage, details);
     }
 }

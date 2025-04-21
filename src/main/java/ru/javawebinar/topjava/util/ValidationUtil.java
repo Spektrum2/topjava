@@ -1,17 +1,17 @@
 package ru.javawebinar.topjava.util;
 
-
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.NestedExceptionUtils;
-import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
-import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import ru.javawebinar.topjava.HasId;
 import ru.javawebinar.topjava.util.exception.IllegalRequestDataException;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import javax.validation.*;
+import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class ValidationUtil {
 
@@ -34,7 +34,6 @@ public class ValidationUtil {
             throw new ConstraintViolationException(violations);
         }
     }
-
 
     public static <T> T checkNotFound(T object, int id) {
         checkNotFound(object != null, id);
@@ -78,11 +77,27 @@ public class ValidationUtil {
         return rootCause != null ? rootCause : t;
     }
 
-    public static ResponseEntity<String> getErrorResponse(BindingResult result) {
-        return ResponseEntity.unprocessableEntity().body(
-                result.getFieldErrors().stream()
-                        .map(fe -> String.format("[%s] %s", fe.getField(), fe.getDefaultMessage()))
-                        .collect(Collectors.joining("<br>"))
-        );
+    public static String getErrorResponse(FieldError fe, MessageSource messageSource) {
+        String fieldNameKey = "field." + fe.getField();
+        String fieldName = messageSource.getMessage(fieldNameKey, null, LocaleContextHolder.getLocale());
+
+        String message = messageSource.getMessage(
+                Objects.requireNonNull(fe.getCode()),
+                fe.getArguments(),
+                fe.getDefaultMessage(),
+                LocaleContextHolder.getLocale());
+
+        if ("NotNull".equals(fe.getCode()) || "NotBlank".equals(fe.getCode())) {
+            message = messageSource.getMessage("validation.notEmpty",
+                    new Object[]{fieldName},
+                    LocaleContextHolder.getLocale());
+        } else if ("Size".equals(fe.getCode())) {
+            Object[] args = fe.getArguments();
+            message = messageSource.getMessage("validation.size",
+                    new Object[]{fieldName, args[2], args[1]},
+                    LocaleContextHolder.getLocale());
+        }
+
+        return message;
     }
 }

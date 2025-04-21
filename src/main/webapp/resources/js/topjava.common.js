@@ -62,10 +62,16 @@ function updateTableByData(data) {
 }
 
 function save() {
+    const formData = {};
+    form.serializeArray().forEach(item => item.name === 'dateTime'
+        ? formData[item.name] = item.value.replace(' ', 'T')
+        : formData[item.name] = item.value);
+
     $.ajax({
         type: "POST",
         url: ctx.ajaxUrl,
-        data: form.serialize()
+        contentType: "application/json",
+        data: JSON.stringify(formData),
     }).done(function () {
         $("#editRow").modal("hide");
         ctx.updateTable();
@@ -108,7 +114,7 @@ function failNoty(jqXHR) {
     closeNoty();
     var errorInfo = jqXHR.responseJSON;
     failedNote = new Noty({
-        text: `<span class='fa fa-lg fa-exclamation-circle'></span> &nbsp;${i18n['common.errorStatus']}: ${jqXHR.status}<br>${errorInfo.type}<br>${errorInfo.detail}`,
+        text: `<span class='fa fa-lg fa-exclamation-circle'></span> &nbsp;${errorInfo.typeMessage}<br>${errorInfo.details.join("<br>")}`,
         type: "error",
         layout: "bottomRight"
     });
