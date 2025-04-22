@@ -1,10 +1,7 @@
 package ru.javawebinar.topjava.util;
 
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.NestedExceptionUtils;
 import org.springframework.lang.NonNull;
-import org.springframework.validation.FieldError;
 import ru.javawebinar.topjava.HasId;
 import ru.javawebinar.topjava.util.exception.IllegalRequestDataException;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
@@ -74,16 +71,5 @@ public class ValidationUtil {
     public static Throwable getRootCause(@NonNull Throwable t) {
         Throwable rootCause = NestedExceptionUtils.getRootCause(t);
         return rootCause != null ? rootCause : t;
-    }
-
-    public static String getErrorMessage(FieldError fe, MessageSource messageSource) {
-        String fieldNameKey = "field." + fe.getField();
-        String fieldName = messageSource.getMessage(fieldNameKey, null, LocaleContextHolder.getLocale());
-
-        return messageSource.getMessage(
-                fe.getCode(),
-                "Size".equals(fe.getCode()) ? new Object[]{fieldName, fe.getArguments()[2], fe.getArguments()[1]} : new Object[]{fieldName},
-                LocaleContextHolder.getLocale()
-        );
     }
 }

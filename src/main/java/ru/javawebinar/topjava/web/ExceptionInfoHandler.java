@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static ru.javawebinar.topjava.util.ValidationUtil.getErrorMessage;
 import static ru.javawebinar.topjava.util.exception.ErrorType.*;
 
 @RestControllerAdvice(annotations = RestController.class)
@@ -94,7 +93,7 @@ public class ExceptionInfoHandler {
     public ErrorInfo handleMethodArgumentNotValidException(HttpServletRequest req, MethodArgumentNotValidException e) {
         String typeMessage = messageSource.getMessage("validation.type", null, LocaleContextHolder.getLocale());
         List<String> errorDetails = e.getBindingResult().getFieldErrors().stream()
-                .map(fe -> getErrorMessage(fe, messageSource))
+                .map(fe -> messageSource.getMessage(fe.getCode(), fe.getArguments(), LocaleContextHolder.getLocale()))
                 .toList();
 
         log.warn("Validation error at {}: {}", req.getRequestURL(), errorDetails);
